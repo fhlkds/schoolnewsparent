@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>登陆</title>
+	<meta charset="utf-8">
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function () {
+            $(".login_btn").click(function () {
+                var name = $("#userName").val();
+                var password = $("#password").val();
+                var valida = $("#valida").val();
+                if(name.length<=0){
+                    $("#name_span").text("用户名不为空");
+                    $("#userName").css("border","2px solid #f51e08");
+                }else
+                if(password.length<=0){
+                    $("#password_span").text("密码不能为空");
+                    $("#password").css("border","2px solid #f51e08");
+                }else
+                if(valida.length<=0){
+                   $("#valida_span").text("验证码不能为空");
+                   $("#valida").css("border","2px solid #f51e08");
+                }else {
+                    $("#login_form").submit();
+                }
+            });
+
+             $("#userName").blur(function () {
+                 $("#error").text("");
+                 var name = $("#userName").val();
+                 if(name.length>0){
+                     $("#name_span").text("");
+                     $("#userName").css("border","1px solid #cbced0");
+                 }
+             });
+             $("#password").blur(function () {
+                 $("#error").text("");
+                 var password = $("#password").val();
+                 if(password.length>0){
+                     $("#password_span").text("");
+                     $("#password").css("border","2px solid #cbced0");
+                 }
+             });
+            $("#valida").blur(function () {
+                $("#error").text("");
+                var valida = $("#valida").val();
+                if(valida.length>0){
+                    $("#valida_span").text("");
+                    $("#valida").css("border","2px solid #cbced0");
+                }
+            });
+            $("#verify").click(function () {
+                var addr = "[[${webPath}]]";
+                $("#verify").attr("src",addr+"/verify.htm?d="+new Date());
+            });
+		});
+
+	</script>
+</head>
+<body>
+	<div class="login_head">
+		<div class="container">
+			<img src="images/logo.png">
+		</div>
+	</div>
+
+	<div class="login_banner">
+		<div class="container">
+			<div class="login">
+                <div class="login_in">
+                    <form th:action="@{${webPath}+'/loging.htm'}" id="login_form" method="post">
+                        <div class="login_h">后台登陆<span style="color: red" th:text="${error}" id="error"></span></div>
+                        <div class="user_login">
+                            <input type="text" id="userName" name="userName" th:value="${userName}" placeholder="账号"><span id="name_span"></span>
+                            <input type="text" id="password" name="password" th:value="${password}" placeholder="密码"><span id="password_span"></span>
+                        </div>
+                        <div class="img_code">
+                            <input type="text" id="valida" name="valida" placeholder="验证码">
+                            <img th:src="@{${webPath}+'/verify.htm'}" alt="" id="verify">
+                        </div>
+                        <input type="submit" id="subbmit" style="display: none">
+                        <div class="login_btn">登陆</div>
+                    </form>
+                </div>
+                
+            </div>
+		</div>
+	</div>
+
+	<div class="login_end text_center">版权所有&copy;：suaa.net</div>
+</body>
+</html>

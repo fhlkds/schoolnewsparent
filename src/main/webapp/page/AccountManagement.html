@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8">
+	<link href="../css/main.css" rel="stylesheet">
+    <link href="../css/default.css" rel="stylesheet">
+</head>
+<body>
+			<div class="AccountManagement_c " id="AccountManagement_c">
+                <h3>账户管理 
+                    <div class="amcl fr">
+                        <input type="text" placeholder="用户名" class="fl" name="">
+                        <div class="search fl"><img src="../images/search.png"></div>
+                    </div> 
+                </h3>
+                <div class="AM_ct text_center">
+                    <div class="AM_ct_in">
+                        <div class="add_btn df_btn fl" id="add_Account_btn">添加</div>
+                        <div class="edit_btn df_btn fl" id="edit_Account_btn">编辑</div>
+                        <div class="delete_btn df_btn fl" id="delete_Account_btn">删除</div>
+                        <div class="fr df_btn ac_btn" id="ac_Account_btn">账号授权</div>
+                    </div>
+                </div>
+
+                <div class="list">
+                    <ul class="list_h">
+                        <li class="b20"><label><input type="checkbox" name=""><span>用户名</span></label></li>
+                        <li class="b20"><label>密码</label></li>
+                        <li class="b60"><label>授权形式</label></li>
+                    </ul>
+                    <div class="list_b_c">
+                        <ul class="list_null">
+                            <li class="text_center">未添加管理员账户！</li>
+                        </ul>
+                        <input type="hidden" id="user_id_edit">
+                        <input type="hidden" id="user_name_edit">
+                        <ul class="list_b" th:each="obj : ${objs}" th:name="${obj.id}">
+                            <li class="b20"><label><input type="hidden"  class="user_id" th:value="${obj.id}"><input type="checkbox" class="account_change" name=""><span class="account_name" th:text="${obj.userName}"></span></label></li>
+                            <li class="b20"><label th:text="${obj.password}"></label></li>
+                            <li class="b60"><label>教务处、新闻中心、财务处</label></li>
+                        </ul>
+                    </div>
+
+                    <div class="fenye">
+                        <form th:action="@{${webPath}+'/admin/accountManagement.htm'}" method="post">
+                            ${gotoPageStaticHTML}"
+                        </form>
+                    </div>
+
+
+                </div>
+            </div>
+
+
+            <!-- 弹窗 -->
+    <!-- 添加账户 -->
+    <div class="add_Account dn" id="add_Account">
+        <div class="add_Account_c">
+            <div class="add_Account_h">
+                <div class="add_Account_h_in">
+                    添加账户
+                    <span class="fr add_Account_close"><img src="../images/close.png"></span>
+                </div>
+            </div>
+            <form th:action="@{${webPath}+'/add_user.htm'}" method="post">
+                <div class="user_name user_i">
+                    <label>用户名</label> <input type="text" placeholder="输入用户名" value=" " name="userName" id="add_userName"><span style="color: red" id="add_userName_prompt"></span>
+                </div>
+                <div class="user_password user_i">
+                    <label>密<i>调</i>码</label> <input type="password" placeholder="输入密码" value="" name="password" id="add_password"><span style="color: red" id="add_password_prompt"></span>
+                </div>
+                <input type="submit" style="display: none" id="add_submit">
+                <div class="add_Account_ok_btn text_center" id="add_Account_ok_btn">确<i>皮</i>定</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 账户编辑 -->
+    <div class="add_Account dn" id="user_column">
+        <div class="add_Account_c">
+            <div class="add_Account_h">
+                <div class="add_Account_h_in">
+                    编辑账户
+                    <span class="fr add_Account_close"><img src="../images/close.png"></span>
+                </div>
+            </div>
+            <div class="column_now ">正在编辑 “<span>jiaowuchu</span>”账户</div>
+            <div class="user_name user_i">
+                <label>用户名</label> <input type="text" id="edit_account_by_user_name" placeholder="输入用户名" name="">
+            </div>
+            <div class="user_password user_i">
+                <label>密<i>调</i>码</label> <input type="password" id="edit_account_by_user_password" placeholder="输入密码" name="">
+            </div>
+            <div class="add_Account_ok_btn text_center" id="user_column_ok_btn">确<i>皮</i>定</div>
+        </div>
+    </div>
+
+    <!-- 删除账户 -->
+    <div class="add_Account dn" id="delete_Account">
+        <div class="add_Account_c">
+            <div class="add_Account_h">
+                <div class="add_Account_h_in">
+                    删除账户
+                    <span class="fr add_Account_close"><img src="../images/close.png"></span>
+                </div>
+            </div>
+            <div class="delete_text">确定删除“ <span id="delete_user_name_view">jiaopwuchu</span> ”账户吗？</div>
+            <div class="add_Account_ok_btn text_center" id="delete_Account_ok_btn">确<i>皮</i>定</div>
+        </div>
+    </div>
+
+    <!-- 账户授权 -->
+    <div class="add_Account dn" id="ac_Account">
+        <div class="add_Account_c">
+            <div class="add_Account_h">
+                <div class="add_Account_h_in">
+                    账户栏目授权
+                    <span class="fr add_Account_close"><img src="../images/close.png"></span>
+                </div>
+            </div>
+            <ul>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+            </ul>
+            <div class="add_Account_ok_btn text_center" id="ac_Account_ok_btn">保<i>呀</i>存</div>
+        </div>
+    </div>
+    
+</body>
+<script type="text/javascript" src="../js/jquery.js"></script>
+<script type="text/javascript" src="../js/main.js"></script>
+<script>
+    $("#delete_Account_ok_btn").click(function(){
+        var user_id = $("#user_id_edit").val();
+        if(user_id.length==0){
+            alert("请选择一个用户删除！");
+        }else{
+            $.ajax({
+                type:"POST",
+                url:"/admin/delete_user.htm",
+                data:{
+                    "userId":user_id
+                },success:function (data) {
+                    var res = eval("("+data+")");
+                    if(res.status == 1){
+                        alert("删除成功！");
+                        $("ul[name='"+user_id+"']").remove();
+                    }else if(res.status == 2){
+                        alert("删除失败！");
+                    }
+                }
+            });
+        }
+        $("#delete_Account").fadeOut(100);
+
+    })
+    $(document).ready(function () {
+        $(".account_change").click(function () {
+            var account_id = $(this).parent().children(".user_id").val();
+            $("#user_id_edit").val(account_id);
+            $("#user_name_edit").val($(this).parent().children(".account_name").html());
+            $("input[class='account_change']").removeAttr("checked");
+            $(this).attr("checked","true");
+        });
+    });
+
+    $(document).ready(function () {
+        $("#add_Account_ok_btn").click(function () {
+
+            var username = $("#add_userName").val();
+            var password = $("#add_password").val();
+           // var addr = "[[${webPath}]]";
+            var addr = "[[${webPath}]]";
+            if(username.length<=0){
+                $("#add_userName_prompt").text("请输入用户名！");
+            }else if(password.length<=0){
+                $("#add_password_prompt").text("请输入密码！");
+            }else{
+                var add = "[[${webPath}]]";
+                $.ajax({
+                    type:'POST',
+                    url:"/admin/add_user.htm",
+                    data:{
+                     "userName":username,
+                     "password":password
+                    },success:function (data) {
+                        var res = "("+data+")";
+                        if(data=='1'){
+                            $(".add_Account_close").click();
+                            alert("添加成功！");
+                        }else if(data=='2') {
+                           // window.location.href = "/login.htm";
+                            alert("请前去登录！");
+                        }else if(data=='3'){
+                            alert("用户名和密码不能为null");
+                        }else if(data=='4'){
+                            alert("当前用户已经存在！");
+                        }
+                    },error:function () {
+                        alert("系统繁忙请稍后再试！");
+                    }
+                });
+            }
+        });
+        $("#add_userName").blur(function () {
+            $("#add_userName_prompt").text("");
+        });
+        $("#add_password").blur(function () {
+            $("#add_userName_prompt").text("");
+        });
+
+
+    });
+
+
+    // 弹窗   all
+    // z账户管理 -
+    // 添加账户
+    $("#add_Account_btn").click(function(){
+        $("#add_Account").fadeIn(100);
+    })
+    $(".add_Account_close").click(function(){
+        $("#add_Account").fadeOut(100);
+        $("#user_column").fadeOut(100);
+        $("#delete_Account").fadeOut(100);
+        $("#ac_Account").fadeOut(100);
+        $("#add_column").fadeOut(100);
+        $("#edit_column").fadeOut(100);
+        $("#delete_column").fadeOut(100);
+    })
+    // 编辑账户
+    $("#edit_Account_btn").click(function(){
+        var user_name = $("#user_name_edit").val();
+        $("#edit_account_by_user_name").val(user_name);
+        var user_id = $("#user_id_edit").val();
+        if(user_id.length == 0){
+            alert("请勾选一个用户！");
+        }else {
+            $("#user_column").fadeIn(100);
+        }
+    })
+    //删除账户
+    $("#delete_Account_btn").click(function(){
+        var user_id = $("#user_id_edit").val();
+        if(user_id.length == 0){
+            alert("请勾选一个用户！");
+        }else {
+            var user_name = $("#user_name_edit").val();
+            $("#delete_user_name_view").html(user_name);
+            $("#delete_Account").fadeIn(100);
+        }
+    })
+    // 编辑账户
+    $("#ac_Account_btn").click(function(){
+        var user_id = $("#user_id_edit").val();
+        if(user_id.length == 0){
+            alert("请勾选一个用户！");
+        }else {
+            $.ajax({
+                type:"post",
+                url:"/admin/getauthorization.htm",
+                data:{
+                    "user_id":user_id
+                },success:function (data) {
+                    var res = eval("("+data+")");
+                    if(res.status == 1){
+                        console.log(res);
+                        $("#ac_Account").fadeIn(100);
+                    }else{
+                        alert("服务器繁忙请稍后重试！");
+                    }
+                }
+            });
+
+        }
+    })
+    $("#user_column_ok_btn").click(function(){
+        var user_id = $("#user_id_edit").val();
+        var user_userName = $("#edit_account_by_user_name").val();
+        var user_password = $("#edit_account_by_user_password").val();
+        if(user_id.length == 0){
+            alert("请勾选一个用户！");
+        }else {
+            $.ajax({
+                type: 'POST',
+                url: '/admin/edit_user.htm',
+                data: {
+                    "user_id": user_id,
+                    "user_name": user_userName,
+                    "user_password": user_password
+                }, success: function (date) {
+                    var res = eval("(" + date + ")");
+                    console.log(res.status);
+                    if (res.status == 1) {
+                        alert("用户修改成功！");
+                        $("#user_column").fadeOut(100);
+                    } else if (res.status == 5) {
+                        alert("用户名重复，请换一个试试！");
+                    }
+                }
+            });
+        }
+    })
+
+</script>
+</html>

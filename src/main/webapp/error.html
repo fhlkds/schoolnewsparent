@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8" />
+    <title>error</title>
+
+</head>
+<body>
+<div style="text-align: center;margin-top: 200px; ">
+    <img src="$!webPath/resources/style/system/front/wap/images/1/tongyong/tongtong_errer.png"
+         style="width: 30px;height: 30px;margin:0 8px -10px; 0 " >
+    <span style="color: #0b0b0b;font-size: 18px;margin-top: 10px; ">$!{op_title}</span>
+</div>
+
+
+#if($!url)
+<script>
+    var count=2;
+    window.setInterval(go,1000);
+    function go(){
+        count--;
+        if(count==0) window.location.href="$!url";
+    }
+</script>
+#end
+</body>
+</html>

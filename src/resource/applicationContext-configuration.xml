@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.1.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+    <!--不扫描controller-->
+    <context:component-scan base-package="net.suaa">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <!--加载jdbc配置文件-->
+
+    <context:property-placeholder location="classpath:config/jdbc.properties"/>
+
+   <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+       <!--<property name="driverClass" value="${jdbc.driverClass}"></property>-->
+       <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+       <!--<property name="jdbcUrl" value="${jdbc.url}"></property>-->
+       <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/school-news"></property>
+      <!-- <property name="user" value="${jdbc.user}"></property>-->
+       <property name="user" value="root"></property>
+      <!--  <property name="password" value="${jdbc.password}"></property>-->
+        <property name="password" value="123456"></property>
+    </bean>
+
+    <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+        <property name="databasePlatform" value="org.hibernate.dialect.MySQLDialect" />
+    </bean>
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"></property>
+    </bean>
+    <!-- 配置Spring管理Jpa的工厂Bean，需要加入spring-orm-4.1.7.RELEASE.jar（LocalEntityManagerFactoryBean类在里面） -->
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <!--待扫描的实体类包，不再需要persistence.xml了-->
+        <property name="packagesToScan" value="net.suaa.domain"></property>
+        <property name="jpaVendorAdapter" ref="jpaVendorAdapter"></property>
+        <property name="jpaProperties">
+            <props>
+                <!--设置外连接抓取树的最大深度 -->
+                <prop key="hibernate.max_fetch_depth">3</prop>
+                <prop key="hibernate.jdbc.fetch_size">18</prop>
+                <prop key="hibernate.jdbc.batch_size">10</prop>
+
+                <!-- 自动建表类型 validate|create|create-drop|update -->
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+                <!-- 是否显示SQL -->
+                <prop key="hibernate.show_sql">true</prop>
+                <!-- 显示SQL是否格式化 -->
+                <prop key="hibernate.format_sql">true</prop>
+                <!-- 关闭二级缓存 -->
+              <!--  <prop key="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</prop>-->
+                <!-- 关闭实体字段映射校验 -->
+                <prop key="javax.persistence.validation.mode">none</prop>
+                <prop key="hibernate.temp.use_jdbc_metadata_defaults">false</prop>
+               <!-- <prop key="hibernate.cache.provider_class">
+                    com.googlecode.hibernate.memcached.MemcachedCacheProvider
+                </prop>
+                <prop key="hibernate.memcached.servers">
+                    127.0.0.1:11211
+                </prop>
+                <prop key="hibernate.cache.region_prefix">
+                    wemall.cache
+                </prop>
+                <prop key="hibernate.cache.use_query_cache">true</prop>
+                <prop key="hibernate.cache.use_second_level_cache">
+                    true
+                </prop>
+                <prop key="hibernate.use_sql_comments">false</prop>
+                <prop key="hibernate.format_sql">false</prop>
+                <prop key="hibernate.generate_statistics">true</prop>
+                <prop key="hibernate.hbm2ddl.auto">update</prop>-->
+            </props>
+        </property>
+    </bean>
+
+    <!-- 启用事务注解 -->
+    <!--
+        Spring事务默认只能对运行时异常（RuntimeException）进行回滚，
+        不会对Exception进行回滚。
+        如果需要指定其他异常，则需要配置：rollbackFor=Exception.class
+     -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <task:annotation-driven scheduler="taskScheduler" mode="proxy"/>
+    <task:scheduler id="taskScheduler" pool-size="10"/>
+
+</beans>

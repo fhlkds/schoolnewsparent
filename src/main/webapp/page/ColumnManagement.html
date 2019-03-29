@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8">
+    <link href="../css/main.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 栏目管理 -->
+            <div class="AccountManagement_c" id="ColumnManagement_c">
+                <h3>栏目管理 
+                    <div class="amcl fr">
+                        <input type="text" placeholder="用户名" class="fl" name="">
+                        <div class="search fl"><img src="../images/search.png"></div>
+                    </div> 
+                </h3>
+                <div class="AM_ct text_center">
+                    <div class="AM_ct_in">
+                        <div class="add_btn df_btn fl" id="add_column_btn">添加</div>
+                        <div class="edit_btn df_btn fl" id="edit_column_btn">编辑</div>
+                        <div class="delete_btn df_btn fl" id="delete_column_btn">删除</div>
+                    </div>
+                </div>
+
+                <div class="list">
+                    <ul class="list_h">
+                        <li class="b20"><label><input type="checkbox" onclick="add_checked()" name=""><span>序号</span></label></li>
+                        <li class="b80"><label>栏目名称</label></li>
+                    </ul>
+                    <div class="list_b_c">
+                        <ul class="list_null">
+                            <li class="text_center">未添加栏目！</li>
+                        </ul>
+
+
+                        <ul class="list_b" th:each="obj : ${objs}">
+                            <li class="b20"><label><input type="checkbox" name=""><span th:text="${obj.id}"></span></label></li>
+                            <li class="b80"><label th:text="${obj.classifyName}"></label></li>
+                        </ul>
+
+                    </div>
+
+                    <div class="pull_page">
+                        <div class="fl pull_page_up">上一页</div>
+                            <ul>
+                                <li class="on">1</li>
+                                <li>2</li>
+                                <li>3</li>
+                                <li>4</li>
+                                <li class="pull_page_df_btn">…</li>
+                                <li>12</li>
+                            </ul>
+                        <div class="fl pull_page_down">下一页</div>
+                    </div>
+
+                    
+                </div>
+            </div>
+
+
+            <!-- 添加栏目 -->
+    <div class="add_Account dn" id="add_column">
+        <div class="add_Account_c">
+            <div class="add_Account_h">
+                <div class="add_Account_h_in">
+                    添加栏目
+                    <span class="fr add_Account_close"><img src="../images/close.png"></span>
+                </div>
+            </div>
+            <div class="user_name user_i">
+                <label>栏目名</label> <input type="text" id="add_column_name" placeholder="输入栏目名" name="">
+            </div>
+            <div class="user_password user_i">
+                <label>序<i>调</i>号</label> <input type="text" id="add_column_serial" placeholder="输入序号" name="">
+            </div>
+            <div class="add_Account_ok_btn text_center" id="add_column_ok_btn">确<i>皮</i>定</div>
+        </div>
+    </div>
+
+    <!-- 编辑栏目 -->
+    <div class="add_Account dn" id="edit_column">
+        <div class="add_Account_c">
+            <div class="add_Account_h">
+                <div class="add_Account_h_in">
+                    编辑栏目
+                    <span class="fr add_Account_close"><img src="../images/close.png"></span>
+                </div>
+            </div>
+            <div class="user_name user_i">
+                <label>栏目名</label> <input type="text" placeholder="输入栏目名" name="">     
+            </div>
+            <div class="user_password user_i">
+                <label>序<i>调</i>号</label> <input type="text" placeholder="输入序号" name="">     
+            </div>
+            <div class="add_Account_ok_btn text_center" id="edit_column_ok_btn">确<i>皮</i>定</div>
+        </div>
+    </div>
+
+    <!-- 删除栏目 -->
+    <div class="add_Account dn" id="delete_column">
+        <div class="add_Account_c">
+            <div class="add_Account_h">
+                <div class="add_Account_h_in">
+                    删除栏目
+                    <span class="fr add_Account_close"><img src="../images/close.png"></span>
+                </div>
+            </div>
+            <div class="delete_text">确定删除“ <span>jiaopwuchu</span> ”栏目吗？</div>
+            <div class="add_Account_ok_btn text_center" id="delete_column_ok_btn">确<i>皮</i>定</div>
+        </div>
+    </div>
+
+
+</body>
+<script type="text/javascript" src="../js/jquery.js"></script>
+<script type="text/javascript" src="../js/main.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#add_column_ok_btn").click(function () {
+            var column_name = $("#add_column_name").val();
+            var column_serial = $("#add_column_serial").val();
+            console.log(column_name+"===="+column_serial);
+            if(column_name.length == 0){
+                alert("请输入栏目名！");
+            }else{
+                $.ajax({
+                    type:"post",
+                    url:"/admin/addClassify.htm",
+                    data:{
+                        "classIfy_name":column_name,
+                        "classify_serial":column_serial
+                    },success:function (data) {
+                        var res = eval("("+data+")");
+                        console.log(res);
+                        if(res.status ==1 ){
+                            alert("分类添加成功");
+                       /* <ul class="list_b" th:each="obj : ${objs}">
+                                <li class="b20"><label><input type="checkbox" name=""><span th:text="${obj.id}"></span></label></li>
+                            <li class="b80"><label th:text="${obj.classifyName}"></label></li>
+                            </ul>*/
+                            var ul = "<ul class='list_b'>" +
+                                "" +"<li class='b20'><label><input type='checkbox' onclick='add_checked()' name='classify_id'/><span>"+res.classify.id+"</span></label></li>"+"<li class='b80'>" +
+                                "" +"<label>"+res.classify.classifyName+"</label>"+
+                                "</li>"+
+                                "</ul>";
+                            var id = "<input type='checkbox' name='classify_id'/>";
+                            var span = "<span>"+res.classify.id+"</span>";
+                            var li2 = "<li class='b80'></li>"
+                            var lable1 = "<label>"+res.classify.classifyName+"</label>";
+                            $(".list_b_c").append(ul);
+                        }else if(res.status == 2){
+                            alert("分类已经存在，请重新输入！");
+                        }
+                    }
+                });
+
+            }
+        });
+    })
+    var addr = "[[${webPath}]]";
+
+
+    $(function(){
+
+
+        // 适配
+        // iframe
+        $(".AccountManagement_c_iframe").css("height",$(document).height());
+        // 导航高度
+        $(".nav_side").css("height",$(document).height()-100);
+
+        // iframe  链接
+        $(".AccountManagement").click(function(){
+            alert(addr+"admin/accountManagement.htm");
+            $(".AccountManagement_c_iframe iframe").attr("src",addr+"/admin/accountManagement.htm")
+        })
+        $(".ColumnManagement").click(function(){
+            $(".AccountManagement_c_iframe iframe").attr("src",addr+"/admin/columnManagement.htm")
+        })
+        $(".NewsManagement").click(function(){
+            $(".AccountManagement_c_iframe iframe").attr("src","page/NewsManagement.html")
+        })
+
+
+        // pull page   翻页
+        $(".pull_page ul li").click(function(){
+            var index =$(this).index();
+            if( $(this).hasClass("pull_page_df_btn")){
+                return;
+            }
+            $(this).addClass("on").siblings().removeClass("on");
+
+        })
+
+        // nav
+        $(".nav_side>div").click(function(){
+            var index = $(this).index();
+            $(this).addClass("active").siblings().removeClass("active");
+            $(".main_fx>div").eq(index).show().siblings().hide();
+            if( index == 0 ){
+                $(".user_location span").text("账户管理");
+            }else if( index == 1){
+                $(".user_location span").text("栏目管理");
+            }else if( index == 2){
+                $(".user_location span").text("新闻管理");
+            }
+        })
+
+        // 弹窗   all
+        // z账户管理 -
+        // 添加账户
+        $("#add_Account_btn").click(function(){
+            $("#add_Account").fadeIn(100);
+        })
+        $(".add_Account_close").click(function(){
+            $("#add_Account").fadeOut(100);
+            $("#user_column").fadeOut(100);
+            $("#delete_Account").fadeOut(100);
+            $("#ac_Account").fadeOut(100);
+            $("#add_column").fadeOut(100);
+            $("#edit_column").fadeOut(100);
+            $("#delete_column").fadeOut(100);
+        })
+        // 编辑账户
+        $("#edit_Account_btn").click(function(){
+            alert("edit_Account_btn");
+            $("#user_column").fadeIn(100);
+        })
+        //删除账户
+        $("#delete_Account_btn").click(function(){
+            $("#delete_Account").fadeIn(100);
+        })
+        // 编辑账户
+        $("#ac_Account_btn").click(function(){
+            $("#ac_Account").fadeIn(100);
+        })
+
+
+        // 栏目管理 -
+        $("#add_column_btn").click(function(){
+            $("#add_column").fadeIn(100);
+        })
+        // 编辑栏目
+        $("#edit_column_btn").click(function(){
+            $("#edit_column").fadeIn(100);
+        })
+        // 删除栏目
+        $("#delete_column_btn").click(function(){
+            $("#delete_column").fadeIn(100);
+        })
+
+        // 确定 btn
+        $("#add_Account_ok_btn").click(function(){
+            $("#add_Account").fadeOut(100);
+        })
+        $("#user_column_ok_btn").click(function(){
+            $("#user_column").fadeOut(100);
+        })
+        $("#delete_Account_ok_btn").click(function(){
+            $("#delete_Account").fadeOut(100);
+        })
+        $("#ac_Account_ok_btn").click(function(){
+            $("#ac_Account").fadeOut(100);
+        })
+        $("#add_column_ok_btn").click(function(){
+            $("#add_column ").fadeOut(100);
+        })
+        $("#edit_column_ok_btn").click(function(){
+            $("#edit_column ").fadeOut(100);
+        })
+
+        $("#delete_column_ok_btn").click(function(){
+            $("#delete_column").fadeOut(100);
+        })
+
+
+    })
+</script>
+</html>
