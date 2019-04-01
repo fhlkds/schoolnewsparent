@@ -236,34 +236,34 @@ public class CommUtil {
         String s = "";
         if (pages > 0){
             if (currentPage >= 1){
-                s = s + "<a href='" + url + "_1.htm'>首页</a> ";
+                s = s + "<div class='fl pull_page_up'><a href='" + url + "?currentPage=1'>首页</a> </div><ul>";
                 if (currentPage > 1){
-                    s = s + "<a href='" + url + "_" + (currentPage - 1) +
-                            ".htm'>上一页</a> ";
+                    s = s + "<a href='" + url + "?currentPage=" + (currentPage - 1) +
+                            "'><li>上一页</li></a>";
                 }
             }
             int beginPage = currentPage - 3 < 1 ? 1 : currentPage - 3;
             if (beginPage <= pages){
-                s = s + "第　";
+              //  s = s + "<li>第　<li>";
                 int i = beginPage;
                 for (int j = 0; (i <= pages) && (j < 6); j++){
                     if (i == currentPage)
-                        s = s + "<a class='this' href='" + url + "_" + i +
-                                ".htm'>" + i + "</a> ";
+                        s = s + "<a class='this' href='" + url + "?currentPage=" + i +
+                                "'><li class='on'>" + i + "</li></a> ";
                     else
-                        s = s + "<a href='" + url + "_" + i + ".htm'>" + i +
-                                "</a> ";
+                        s = s + "<a href='" + url + "?currentPage=" + i + "'><li>" + i +
+                                "</li></a> ";
                     i++;
                 }
 
-                s = s + "页　";
+            //    s = s + "<li>页　<li>";
             }
             if (currentPage <= pages){
                 if (currentPage < pages){
-                    s = s + "<a href='" + url + "_" + (currentPage + 1) +
-                            ".htm'>下一页</a> ";
+                    s = s + "<a href='" + url + "?currentPage=" + (currentPage + 1) +
+                            "'><li>下一页</li></a> ";
                 }
-                s = s + "<a href='" + url + "_" + pages + ".htm'>末页</a> ";
+                s = s + "</ul><div class='fl pull_page_up'><a href='" + url + "?currentPage=" + pages + "'>末页</a> </div>";
             }
         }
 

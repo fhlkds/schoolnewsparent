@@ -1,5 +1,6 @@
 package net.suaa.action;
 
+import net.suaa.core.domain.virtual.SysMap;
 import net.suaa.core.mv.JModelAndView;
 import net.suaa.core.query.ClassifyObject;
 import net.suaa.core.query.UserObject;
@@ -54,8 +55,14 @@ public class ClassifyAction {
             }
         }else{
             ClassifyObject co = new ClassifyObject();
+            if(currentPage == null)
+                co.setCurrentPage(1);
+            co.setCurrentPage(CommUtil.null2Int(currentPage));
+            co.addQuery("obj.deleteStatus",new SysMap("deleteStatus",false),"=");
+            co.setPageSize(8);
             IPageList ipl = this.classifyService.list(co);
-            CommUtil.saveIPageList2ModelAndView("", "", "", ipl, mv);
+            String url = CommUtil.getURL(request)+"/admin/columnManagement.htm";
+            CommUtil.saveIPageList2ModelAndView("", url, "", ipl, mv);
         }
         return mv;
     }
@@ -67,7 +74,7 @@ public class ClassifyAction {
         if(user != null && !CommUtil.null2String(classIfy_name).equals("")){
             Map param = new HashMap();
             param.put("classifyName",CommUtil.null2String(classIfy_name));
-            List<Classify> list = this.classifyService.query("select obj from Classify obj where obj.classifyName=:classifyName",param,-1,-1);
+            List<Classify> list = this.classifyService.query("select obj from Classify obj where obj.classifyName=:classifyName and obj.deleteStatus=false",param,-1,-1);
             if(list == null || list.size() != 0){
                 param.put("status",2);//分类名重复
             }else{
@@ -82,6 +89,53 @@ public class ClassifyAction {
             }
         }else{
             res.put("status",3);//分类名不能为null
+        }
+        returnView(response,res);
+    }
+    @RequestMapping("/admin/edit_classify.htm")
+    public void editClassify(HttpServletResponse response,HttpServletRequest request,String classify_id,String classify_name,String classify_serial){
+        User user = SecurityUserHolder.getCurrentUser();
+        Map res = new HashMap();
+        Classify classify = this.classifyService.getObjById(CommUtil.null2Long(classify_id));
+        if(classify == null || user == null){
+            res.put("status",2);
+        }else{
+            if(CommUtil.null2String(classify_name).equals("") || CommUtil.null2Int(classify_id) == 0){
+                res.put("status",3);
+            }else{
+                Map map = new HashMap();
+                map.put("classifyName",CommUtil.null2String(classify_name));
+                map.put("classifyId",CommUtil.null2Long(classify_id));
+                List<Classify> list = this.classifyService.query("select obj from Classify obj where obj.classifyName=:classifyName and obj.id <>:classifyId",map,-1,-1);
+                if(list==null || list.size() == 0){
+                    classify.setSerial(CommUtil.null2Int(classify_id));
+                    classify.setClassifyName(CommUtil.null2String(classify_name));
+                    this.classifyService.update(classify);
+                    Classify c = new Classify();
+                    c.setClassifyName(classify.getClassifyName());
+                    c.setSerial(classify.getSerial());
+                    res.put("status",1);
+                    res.put("classify",c);
+                }else{
+                    res.put("status",5);
+                }
+
+            }
+        }
+        returnView(response,res);
+    }
+
+    @RequestMapping("/admin/delete_classify.htm")
+    public void deleteClassify(HttpServletRequest request,HttpServletResponse response,String classify_id){
+        User user = SecurityUserHolder.getCurrentUser();
+        Classify classify = this.classifyService.getObjById(CommUtil.null2Long(classify_id));
+        Map res = new HashMap();
+        if(user != null && classify != null){
+            res.put("status",1);
+            classify.setDeleteStatus(true);
+            this.classifyService.update(classify);
+        }else{
+            res.put("status",2);
         }
         returnView(response,res);
     }

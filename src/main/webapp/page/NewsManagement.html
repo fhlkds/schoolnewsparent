@@ -4,6 +4,43 @@
 	<title></title>
 	<meta charset="utf-8">
     <link href="../css/main.css" rel="stylesheet">
+    <script type="text/javascript" src="../js/jquery.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#save").click(function () {
+                var content = $("#content").val();
+                var title = $("#title").val();
+                var classify_id = $(".column_name_release").val();
+                if(classify_id == null || classify_id.length == 0){
+                    alert("请选择栏目！");
+                    return;
+                }
+                if(content.length == 0 || title.length == 0){
+                    alert("请输入标题或者内容");
+                    return;
+                }
+                $.ajax({
+                    url:"/save_news.htm",
+                    type:"post",
+                    data:{
+                        "content":content,
+                        "title":title,
+                        "classify_id":classify_id
+                    },success:function (data) {
+                        var res = eval("("+data+")");
+                        if(res.status == 1){
+                            $("#title").val("");
+                            $(".column_name_release").val("");
+                            $("#content").val("");
+                        }else{
+                            alert("网络繁忙，请稍后再试！");
+                        }
+                    }
+                });
+            });
+        });
+
+    </script>
 </head>
 <body>
 <!-- 新闻管理 -->
@@ -21,6 +58,7 @@
                         <div class="search fl"><img src="../images/search.png"></div>
                     </div> 
                 </h3>
+                <form id="then" th:action="@{${webPath}+'/save_news.htm'}" method="get">
                 <div class="list" id="release_news">
                     <ul class="list_h">
                         <li class="b80"><label>发布新闻</label></li>
@@ -29,26 +67,22 @@
                         <div class="release_news">
                             <div class="news_title">
                                 <label class="text_center">标题</label>
-                                <input type="text" placeholder="填写标题" name="">
+                                <input type="text" placeholder="填写标题" name="title" id="title">
                             </div>
                             <div class="column_name">
                                 <label class="text_center">栏目</label>
-                                <select class="column_name_release">
-                                    <option>教务处</option>
-                                    <option>教务处</option>
-                                    <option>教务处</option>
-                                    <option>教务处</option>
-                                    <option>教务处</option>
-                                    <option>教务处</option>
+                                <select class="column_name_release" name="classify_id">
+                                    <option th:each="classify:${classifys}" th:value="${classify.id}" th:text="${classify.classifyName}"></option>
                                 </select>
                             </div>
-                            <textarea class="release_news_content" rows="50" cols="60" placeholder="编辑正文"></textarea>     
-                            <div class="release_news_ok_btn text_center">发<i>我</i>布</div>
+                            <textarea name="content" id="content" class="release_news_content" rows="50" cols="60" placeholder="编辑正文"></textarea>
+                            <div id="save" class="release_news_ok_btn text_center">发<i>我</i>布</div>
                         </div>
 
 
                     </div>
                 </div>
+                </form>
             </div>
 </body>
 </html>

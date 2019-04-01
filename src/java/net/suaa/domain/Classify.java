@@ -13,13 +13,13 @@ import java.util.List;
 @Table(name = "school_classify")
 public class Classify extends Identity {
 
-    @ManyToMany(mappedBy = "cus")
+    @ManyToMany(mappedBy = "cus",fetch = FetchType.LAZY)
     private List<User> users = new ArrayList<>();
 
     @Autowired
     private String classifyName;
     //子分类
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent",fetch = FetchType.LAZY)
     @OrderBy("sequence asc")
     private List<Classify> childs = new ArrayList<>();
 
@@ -27,7 +27,7 @@ public class Classify extends Identity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Classify parent;
 
-    @OneToMany(mappedBy = "classify")
+    @OneToMany(mappedBy = "classify",fetch = FetchType.LAZY)
     private List<News> news = new ArrayList<>();
 
     @Column(columnDefinition = "int default 1")

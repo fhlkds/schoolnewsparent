@@ -49,6 +49,8 @@ public class User extends Identity
     @JoinTable(name = "school_user_classify", joinColumns = {@javax.persistence.JoinColumn(name = "user_id")}, inverseJoinColumns = {@javax.persistence.JoinColumn(name = "classify_id")})
     private List<Classify> cus = new ArrayList();
 
+    @OneToMany(mappedBy = "user")
+    private List<News> news = new ArrayList<>();
     public Set<Role> getRoles() {
         return roles;
     }

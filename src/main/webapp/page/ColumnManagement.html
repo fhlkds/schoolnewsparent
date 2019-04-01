@@ -24,8 +24,11 @@
 
                 <div class="list">
                     <ul class="list_h">
-                        <li class="b20"><label><input type="checkbox" onclick="add_checked()" name=""><span>序号</span></label></li>
+                        <li class="b20"><label><input type="checkbox" name=""><span>序号</span></label></li>
                         <li class="b80"><label>栏目名称</label></li>
+                        <input type="hidden" id="click_classify_id">
+                        <input type="hidden" id="click_classify_name">
+                        <input type="hidden" id="click_classify_serial">
                     </ul>
                     <div class="list_b_c">
                         <ul class="list_null">
@@ -33,15 +36,16 @@
                         </ul>
 
 
-                        <ul class="list_b" th:each="obj : ${objs}">
-                            <li class="b20"><label><input type="checkbox" name=""><span th:text="${obj.id}"></span></label></li>
+                        <ul class="list_b" th:each="obj : ${objs}" th:name="${obj.id}">
+                            <li class="b20"><label><input type="checkbox" class="classify_id_check" onclick="add_checked()" name="classify_id"><span class="clasify_name" th:text="${obj.serial}"></span></label></li>
                             <li class="b80"><label th:text="${obj.classifyName}"></label></li>
                         </ul>
 
                     </div>
 
-                    <div class="pull_page">
-                        <div class="fl pull_page_up">上一页</div>
+                    <div class="pull_page" th:utext="${gotoPageStaticHTML}">
+
+                        <!--<div class="fl pull_page_up">上一页</div>
                             <ul>
                                 <li class="on">1</li>
                                 <li>2</li>
@@ -50,7 +54,7 @@
                                 <li class="pull_page_df_btn">…</li>
                                 <li>12</li>
                             </ul>
-                        <div class="fl pull_page_down">下一页</div>
+                        <div class="fl pull_page_down">下一页</div>-->
                     </div>
 
                     
@@ -87,10 +91,10 @@
                 </div>
             </div>
             <div class="user_name user_i">
-                <label>栏目名</label> <input type="text" placeholder="输入栏目名" name="">     
+                <label>栏目名</label> <input type="text" id="edit_classify_name" placeholder="输入栏目名" name="">
             </div>
             <div class="user_password user_i">
-                <label>序<i>调</i>号</label> <input type="text" placeholder="输入序号" name="">     
+                <label>序<i>调</i>号</label> <input type="text" id="edit_classify_serial" placeholder="输入序号" name="">
             </div>
             <div class="add_Account_ok_btn text_center" id="edit_column_ok_btn">确<i>皮</i>定</div>
         </div>
@@ -115,6 +119,21 @@
 <script type="text/javascript" src="../js/jquery.js"></script>
 <script type="text/javascript" src="../js/main.js"></script>
 <script>
+    function currentPage(then){
+        $(then).addClass("on");
+    }
+    $(document).ready(function () {
+        $(".classify_id_check").click(function () {
+            var classify_id = $(this).parent().parent().parent().attr("name");
+            var classify_serial = $(this).parent().children(".clasify_name").html();
+            var classify_name = $(this).parent().parent().parent().children(".b80").children("label").html();
+            $("#click_classify_id").val(classify_id);
+            $("#click_classify_name").val(classify_name);
+            $("#click_classify_serial").val(classify_serial);
+            $("input[class='classify_id_check']").removeAttr("checked");
+            $(this).attr("checked","true");
+        });
+    });
     $(document).ready(function () {
         $("#add_column_ok_btn").click(function () {
             var column_name = $("#add_column_name").val();
@@ -133,7 +152,7 @@
                         var res = eval("("+data+")");
                         console.log(res);
                         if(res.status ==1 ){
-                            alert("分类添加成功");
+                           // alert("分类添加成功");
                        /* <ul class="list_b" th:each="obj : ${objs}">
                                 <li class="b20"><label><input type="checkbox" name=""><span th:text="${obj.id}"></span></label></li>
                             <li class="b80"><label th:text="${obj.classifyName}"></label></li>
@@ -232,6 +251,7 @@
         })
         // 编辑账户
         $("#ac_Account_btn").click(function(){
+
             $("#ac_Account").fadeIn(100);
         })
 
@@ -241,12 +261,28 @@
             $("#add_column").fadeIn(100);
         })
         // 编辑栏目
-        $("#edit_column_btn").click(function(){
-            $("#edit_column").fadeIn(100);
+        $("#edit_column_btn").click(function() {
+            var id = $("#click_classify_id").val();
+            var name = $("#click_classify_name").val();
+            var serial = $("#click_classify_serial").val();
+            if (id.length == 0) {
+                alert("请选择一个用户！");
+            } else {
+                $("#edit_classify_name").val(name);
+                $("#edit_classify_serial").val(serial);
+                $("#edit_column").fadeIn(100);
+            }
         })
         // 删除栏目
         $("#delete_column_btn").click(function(){
-            $("#delete_column").fadeIn(100);
+            var id = $("#click_classify_id").val();
+            var name = $("#click_classify_name").val();
+            if(id.length == 0){
+                alert(" 请选择一个用户！");
+            }else {
+                $(".delete_text").children("span").html(name);
+                $("#delete_column").fadeIn(100);
+            }
         })
 
         // 确定 btn
@@ -266,11 +302,70 @@
             $("#add_column ").fadeOut(100);
         })
         $("#edit_column_ok_btn").click(function(){
-            $("#edit_column ").fadeOut(100);
+            var name = $("#edit_classify_name").val();
+            var serial = $("#edit_classify_serial").val();
+            var id = $("#click_classify_id").val();
+            if(id.length == 0){
+                alert("请选择一个用户！");
+                return;
+            }
+            if(name.length == 0 || serial.length == 0){
+                alert("栏目名或者序号不能为空");
+                return;
+            }
+            $.ajax({
+                type:"POST",
+                url:"/admin/edit_classify.htm",
+                data:{
+                    "classify_id":id,
+                    "classify_name":name,
+                    "classify_serial":serial
+                },success:function (data) {
+                    var res = eval("("+data+")");
+                    console.log(res);
+                    if(res.status == 1){
+                        $("#edit_column ").fadeOut(100);
+                        console.log($("ul[name='"+id+"']").children(".b20").html());
+                        $("ul[name='"+id+"']").children(".b20").children("label").children("span").html(serial);
+                        $("ul[name='"+id+"']").children(".b80").children("label").html(name);
+                        //alert("栏目修改成功");
+                    }else if(res.status == 2){
+                        $("#edit_column ").fadeOut(100);
+                        alert("服务器繁忙请稍后再试！");
+                    }else if(res.status == 5){
+                        alert("栏目名："+name+"已经存在！");
+                    }
+                }
+            });
+
         })
 
         $("#delete_column_ok_btn").click(function(){
-            $("#delete_column").fadeOut(100);
+            var name = $("#click_classify_name").val();
+            var id = $("#click_classify_id").val();
+            if(id.length == 0){
+                alert(" 请选择一个用户！");
+            }else {
+                $.ajax({
+                    type:"POST",
+                    url:"/admin/delete_classify.htm",
+                    data:{
+                        "classify_id":id
+                    },success:function (data) {
+                        var res = eval("("+data+")");
+                        if(res.status == 1){
+                            $("#delete_column").fadeOut(100);
+                            $("ul[name='"+id+"']").remove();
+                            alert("已经删除"+name+"栏目！");
+                            $("#click_classify_id").val("");
+                        }else{
+                            $("#delete_column").fadeOut(100);
+                            alert("服务器繁忙请稍后再试！");
+                        }
+                    }
+                });
+            }
+
         })
 
 

@@ -37,21 +37,28 @@
                         <input type="hidden" id="user_name_edit">
                         <ul class="list_b" th:each="obj : ${objs}" th:name="${obj.id}">
                             <li class="b20"><label><input type="hidden"  class="user_id" th:value="${obj.id}"><input type="checkbox" class="account_change" name=""><span class="account_name" th:text="${obj.userName}"></span></label></li>
-                            <li class="b20"><label th:text="${obj.password}"></label></li>
-                            <li class="b60"><label>教务处、新闻中心、财务处</label></li>
+                            <li class="b20"><label>****</label></li>
+                            <li class="b60"><label th:each="cus:${obj.cus}" th:text="${cus.classifyName}"></label></li>
                         </ul>
                     </div>
 
-                    <div class="fenye">
-                        <form th:action="@{${webPath}+'/admin/accountManagement.htm'}" method="post">
-                            ${gotoPageStaticHTML}"
-                        </form>
+                    <div class="pull_page" th:utext="${gotoPageStaticHTML}">
+
+                        <!--<div class="fl pull_page_up">上一页</div>
+                            <ul>
+                                <li class="on">1</li>
+                                <li>2</li>
+                                <li>3</li>
+                                <li>4</li>
+                                <li class="pull_page_df_btn">…</li>
+                                <li>12</li>
+                            </ul>
+                        <div class="fl pull_page_down">下一页</div>-->
                     </div>
 
 
                 </div>
             </div>
-
 
             <!-- 弹窗 -->
     <!-- 添加账户 -->
@@ -120,22 +127,8 @@
                 </div>
             </div>
             <ul>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
-                <li><label><input type="checkbox" name="">&nbsp;<span>教务处</span></label></li>
+
+                <li th:each="classify : ${classifys}"><label><input type="checkbox" th:value="${classify.id}" name="classifyId">&nbsp;<span th:text="${classify.classifyName}"></span></label></li>
             </ul>
             <div class="add_Account_ok_btn text_center" id="ac_Account_ok_btn">保<i>呀</i>存</div>
         </div>
@@ -145,6 +138,49 @@
 <script type="text/javascript" src="../js/jquery.js"></script>
 <script type="text/javascript" src="../js/main.js"></script>
 <script>
+    $(document).ready(function () {
+        var cent = "[[${gotoPageStaticHTML}]]";
+        //$(".fenye").append(cent);
+
+    });
+    //用户授权数据提交
+    $("#ac_Account_ok_btn").click(function () {
+        var user_id = $("#user_id_edit").val();
+        if(user_id.length==0){
+            alert("请选择一个用户！");
+        }else{
+            var classifyId = [];
+            $("input[name='classifyId']:checked").each(function (i) {
+                classifyId[i] = $(this).val();
+            });
+            $.ajax({
+                type:"post",
+                url:"/admin/getauthorization.htm",
+                dataType:"json",
+                data:{
+                    "user_id":user_id,
+                    "classifys":classifyId
+                },success:function (data) {
+                    console.log(data);
+                    //var res = eval("("+data+")");
+                    if(data.status==1){
+                        //alert("授权成功");
+                        console.log(data.obj);
+                        var str = "";
+                        for(var i=0;i<data.obj.length;i++){
+                            str+=("<label>"+data.obj[i]+"</label>");
+                        }
+                        $("ul[name='"+user_id+"']").children(".b60").children("label").remove();
+                        $("ul[name='"+user_id+"']").children(".b60").append(str);
+                    }else{
+                        alert("服务期繁忙请稍后再试！");
+                    }
+                }
+            });
+            $("#ac_Account").fadeOut(100);
+        }
+    });
+    //删除数据提交
     $("#delete_Account_ok_btn").click(function(){
         var user_id = $("#user_id_edit").val();
         if(user_id.length==0){
@@ -158,7 +194,7 @@
                 },success:function (data) {
                     var res = eval("("+data+")");
                     if(res.status == 1){
-                        alert("删除成功！");
+                        $("#user_id_edit").val("");
                         $("ul[name='"+user_id+"']").remove();
                     }else if(res.status == 2){
                         alert("删除失败！");
@@ -171,14 +207,19 @@
     })
     $(document).ready(function () {
         $(".account_change").click(function () {
-            var account_id = $(this).parent().children(".user_id").val();
-            $("#user_id_edit").val(account_id);
-            $("#user_name_edit").val($(this).parent().children(".account_name").html());
-            $("input[class='account_change']").removeAttr("checked");
-            $(this).attr("checked","true");
+            check(this);
         });
     });
+    //勾选用户
+    function check(then){
+        var account_id = $(then).parent().children(".user_id").val();
+        $("#user_id_edit").val(account_id);
+        $("#user_name_edit").val($(then).parent().children(".account_name").html());
+        $("input[class='account_change']").removeAttr("checked");
+        $(then).attr("checked","true");
+    }
 
+    //添加用户数据提交
     $(document).ready(function () {
         $("#add_Account_ok_btn").click(function () {
 
@@ -199,16 +240,22 @@
                      "userName":username,
                      "password":password
                     },success:function (data) {
-                        var res = "("+data+")";
-                        if(data=='1'){
+                        var res = eval("("+data+")");
+                        alert(res);
+                        if(res.status==1){
                             $(".add_Account_close").click();
-                            alert("添加成功！");
-                        }else if(data=='2') {
+                            var ele = "<ul class='list_b' name='"+res.user.id+"'><li class='b20'><label><input type='hidden'  class='user_id' value='"+res.user.id+"'>"+
+                                "<input type='checkbox' onclick='check(this);' class='account_change' name=''><span class='account_name'>"+username+"</span></label></li>" +
+                                "<li class='b20'><label>****</label></li><li class='b60'><label></label></li></ul>"
+                                $(".list").append(ele);
+                                //alert($(".list").html());
+                            //alert("添加成功！");
+                        }else if(res.status==2) {
                            // window.location.href = "/login.htm";
                             alert("请前去登录！");
-                        }else if(data=='3'){
+                        }else if(res.status==3){
                             alert("用户名和密码不能为null");
-                        }else if(data=='4'){
+                        }else if(res.status==4){
                             alert("当前用户已经存在！");
                         }
                     },error:function () {
@@ -265,7 +312,7 @@
             $("#delete_Account").fadeIn(100);
         }
     })
-    // 编辑账户
+    // 用户授权  显示授权栏目
     $("#ac_Account_btn").click(function(){
         var user_id = $("#user_id_edit").val();
         if(user_id.length == 0){
@@ -273,22 +320,24 @@
         }else {
             $.ajax({
                 type:"post",
-                url:"/admin/getauthorization.htm",
+                url:"/admin/user_classify.htm",
                 data:{
                     "user_id":user_id
                 },success:function (data) {
                     var res = eval("("+data+")");
-                    if(res.status == 1){
-                        console.log(res);
-                        $("#ac_Account").fadeIn(100);
-                    }else{
-                        alert("服务器繁忙请稍后重试！");
+                    if(res.status==1){
+                        for (var i=0;i<res.classifys.length;i++){
+                            $("input[value='"+res.classifys[i]+"']").attr("checked","true");
+                        }
+                    }else if(res.status == 2){
+                        alert("服务器繁忙请稍后再试！");
                     }
                 }
             });
-
+            $("#ac_Account").fadeIn(100);
         }
-    })
+    });
+    //编辑账户数据提交
     $("#user_column_ok_btn").click(function(){
         var user_id = $("#user_id_edit").val();
         var user_userName = $("#edit_account_by_user_name").val();
@@ -307,7 +356,7 @@
                     var res = eval("(" + date + ")");
                     console.log(res.status);
                     if (res.status == 1) {
-                        alert("用户修改成功！");
+                        //alert("用户修改成功！");
                         $("#user_column").fadeOut(100);
                     } else if (res.status == 5) {
                         alert("用户名重复，请换一个试试！");

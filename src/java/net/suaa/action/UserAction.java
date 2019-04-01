@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import net.suaa.core.annotation.SecurityMapping;
 import net.suaa.core.mv.JModelAndView;
 import net.suaa.core.security.support.SecurityUserHolder;
+import net.suaa.domain.Classify;
 import net.suaa.domain.SysConfig;
 import net.suaa.domain.User;
 import net.suaa.service.IClassifyService;
@@ -31,10 +32,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 @Controller
 public class UserAction {
@@ -68,17 +67,22 @@ public class UserAction {
     @RequestMapping("/admin/add_user.htm")
     public void addUser(HttpServletResponse response, HttpServletRequest request,String userName,String password){
         int ret = 1;//1：成功；2：用户没有登录；3：账号或者密码为null
+        Map map = new HashMap();
         User user = SecurityUserHolder.getCurrentUser();
         if(user!=null){
             if(!CommUtil.null2String(userName).equals("") && !CommUtil.null2String(password).equals("")){
                 Map param = new HashMap();
                 param.put("userName",CommUtil.null2String(userName));
-                List<User> checkUsers = this.userService.query("select obj from User obj where obj.userName =:userName",param,-1,-1);
+                List<User> checkUsers = this.userService.query("select obj from User obj where obj.userName =:userName  and obj.deleteStatus =false",param,-1,-1);
                 if(checkUsers == null || checkUsers.size()==0){
                     User addUser = new User();
                     addUser.setUserName(CommUtil.null2String(userName));
                     addUser.setPassword(CommUtil.null2String(Md5Encrypt.md5(password).toUpperCase()));
                     userService.save(addUser);
+                    User resUser = new User();
+                    resUser.setId(addUser.getId());
+                    resUser.setUserName(addUser.getUserName());
+                    map.put("user",resUser);
                 }else{
                     ret = 4;
                 }
@@ -89,17 +93,8 @@ public class UserAction {
         }else{
           ret = 2;
         }
-        /*Map map = new HashMap();
-        map.put("status",ret);*/
-        response.setContentType("text/plain");
-        response.setHeader("Cache-Control", "no-cache");
-        response.setCharacterEncoding("UTF-8");
-        try {
-            PrintWriter writer = response.getWriter();
-            writer.print(ret);
-        } catch (IOException e){
-            e.printStackTrace();
-        }
+        map.put("status",ret);
+        returnView(response,map);
     }
 
     @RequestMapping("/loging.htm")
@@ -159,7 +154,7 @@ public class UserAction {
                 Map param = new HashMap();
                 param.put("userName",CommUtil.null2String(user_name));
                 param.put("userId",editUser.getId());
-                List<User> checkedUsers = userService.query("select obj from User obj where obj.userName=:userName and obj.id <>:userId",param,-1,-1);
+                List<User> checkedUsers = userService.query("select obj from User obj where obj.userName=:userName and obj.id <>:userId and obj.deleteStatus =false",param,-1,-1);
                 if(checkedUsers.size() > 0){
                     res.put("status",5);//用户用户名重复
                 }else{
@@ -206,15 +201,61 @@ public class UserAction {
         }
     }
 
+    @SecurityMapping(display = false, rsequence = 0, title = "卖家团购编辑", value = "/admin/getauthorization.htm*", rtype = "admin", rname = "admin", rcode = "admin", rgroup = "admin")
     @RequestMapping("/admin/getauthorization.htm")
-    public void authorization(HttpServletResponse response,HttpServletRequest request,String user_id){
+    public void authorization(HttpServletResponse response,HttpServletRequest request,String user_id,String[] classifys){
+        classifys = request.getParameterValues("classifys[]");
         User user = SecurityUserHolder.getCurrentUser();
         User authorizationUser = userService.getObjById(CommUtil.null2Long(user_id));
         Map res = new HashMap();
         res.put("status",0);
+        Map map = request.getParameterMap();
         if(user != null && authorizationUser != null){
-            res.put("obj",authorizationUser.getCus());
+            List<Classify> classifyList = authorizationUser.getCus();
+            int size = classifyList.size();
+            for (int i = 0;i<size;i++) {
+                Classify c = classifyList.get(0);
+                c.getUsers().remove(authorizationUser);
+                this.classifyService.update(c);
+                authorizationUser.getCus().remove(c);
+                this.userService.update(authorizationUser);
+            }
+            if(classifys != null)
+            for (String classifyId:classifys) {
+                Classify classify = this.classifyService.getObjById(CommUtil.null2Long(classifyId));
+                if(classify != null){
+                    classify.getUsers().add(authorizationUser);
+                    this.classifyService.update(classify);
+                    authorizationUser.getCus().add(classify);
+                }
+            }
+            this.userService.update(authorizationUser);
+            List classifyNames = new ArrayList();
+            for (Classify c: authorizationUser.getCus()) {
+                classifyNames.add(c.getClassifyName());
+            }
+            res.put("obj",classifyNames);
             res.put("status",1);
+        }
+        returnView(response,res);
+    }
+
+    @RequestMapping("/admin/user_classify.htm")
+    public void getUserClassIfy(HttpServletResponse response,HttpServletRequest request,String user_id){
+        User currenrUser = SecurityUserHolder.getCurrentUser();
+        User user = this.userService.getObjById(CommUtil.null2Long(user_id));
+        Map res = new HashMap();
+        if(currenrUser != null && user != null){
+            res.put("status",1);
+            List li = new ArrayList();
+            for (Classify c:user.getCus()
+                 ) {
+                li.add(c.getId());
+                System.out.println(c.getClassifyName());
+            }
+            res.put("classifys",li);
+        }else{
+            res.put("status",2);
         }
         returnView(response,res);
     }

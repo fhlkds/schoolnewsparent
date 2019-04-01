@@ -21,6 +21,8 @@ public class News extends Identity{
     @ManyToOne(fetch = FetchType.LAZY)
     private Classify classify;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
     public String getTitle() {
         return title;
     }

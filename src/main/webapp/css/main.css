@@ -599,6 +599,7 @@ input,select{
 #ac_Account .add_Account_c ul li{
     float: left;
     margin: 0px 26px 5px;
+    width: 100px;
 }
 
 
