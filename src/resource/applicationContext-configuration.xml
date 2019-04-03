@@ -20,12 +20,12 @@
    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
        <!--<property name="driverClass" value="${jdbc.driverClass}"></property>-->
        <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
-       <!--<property name="jdbcUrl" value="${jdbc.url}"></property>-->
-       <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/school-news"></property>
-      <!-- <property name="user" value="${jdbc.user}"></property>-->
-       <property name="user" value="root"></property>
-      <!--  <property name="password" value="${jdbc.password}"></property>-->
-        <property name="password" value="123456"></property>
+       <property name="jdbcUrl" value="${jdbc.url}"></property>
+      <!-- <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/school-news"></property>-->
+       <property name="user" value="${jdbc.user}"></property>
+       <!--<property name="user" value="root"></property>-->
+        <property name="password" value="${jdbc.password}"></property>
+       <!-- <property name="password" value="123456"></property>-->
     </bean>
 
     <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
