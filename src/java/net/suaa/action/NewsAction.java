@@ -9,6 +9,8 @@ import net.suaa.service.*;
 import net.suaa.utils.CommUtil;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +28,8 @@ import java.util.Map;
 
 @Controller
 public class NewsAction {
+    private static final Logger logger = LoggerFactory.getLogger(News.class);
+
     @Autowired
     private IClassifyService classifyService;
 
@@ -49,10 +53,12 @@ public class NewsAction {
             try {
                 mv = null;
                 response.sendRedirect("/login.htm");
+                logger.info("未登录！");
             }catch (Exception e){
                 e.printStackTrace();
             }
         }else {
+            logger.info("用户:{}访问新闻管理页面",currentUser.getId());
             mv.addObject("classifys",currentUser.getCus());
         }
         return mv;
@@ -70,6 +76,7 @@ public class NewsAction {
             news.setTitle(CommUtil.null2String(title));
             this.newsService.save(news);
             map.put("status",1);
+            logger.info("管理员:{}编辑发布新闻成功！所属栏目:{}",user.getId(),classify.getId());
         }
         returnView(response,map);
     }

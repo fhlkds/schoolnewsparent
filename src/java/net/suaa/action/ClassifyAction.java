@@ -15,6 +15,8 @@ import net.suaa.service.IUserService;
 import net.suaa.utils.CommUtil;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +34,8 @@ import java.util.Map;
 @Controller
 public class ClassifyAction {
 
+    private static final Logger logger = LoggerFactory.getLogger(ClassifyAction.class);
+
     @Autowired
     private IClassifyService classifyService;
 
@@ -48,6 +52,7 @@ public class ClassifyAction {
     public ModelAndView columnManagement(HttpServletResponse response, HttpServletRequest request,String currentPage){
         ModelAndView mv = new JModelAndView("/page/ColumnManagement.html",this.sysConfigService.getSysConfig(),this.userConfigService.getUserConfig(),request,response);
         if(SecurityUserHolder.getCurrentUser() == null){
+            logger.info("访问分类管理，没有登录！");
             try {
                 response.sendRedirect("/login.htm");
             }catch (Exception e){
@@ -63,6 +68,7 @@ public class ClassifyAction {
             IPageList ipl = this.classifyService.list(co);
             String url = CommUtil.getURL(request)+"/admin/columnManagement.htm";
             CommUtil.saveIPageList2ModelAndView("", url, "", ipl, mv);
+            logger.info("用户:{}访问新闻分类管理",SecurityUserHolder.getCurrentUser().getId());
         }
         return mv;
     }
@@ -87,6 +93,7 @@ public class ClassifyAction {
                 this.classifyService.save(classify);
                 res.put("status",1);
             }
+            logger.info("管理员:{}添加新闻栏目:{}状态:{}",user.getId(),classIfy_name,res.get("status"));
         }else{
             res.put("status",3);//分类名不能为null
         }
@@ -121,7 +128,9 @@ public class ClassifyAction {
                 }
 
             }
+            logger.info("管理员:{}编辑新闻栏目:{}",user.getId(),classify_id);
         }
+
         returnView(response,res);
     }
 
@@ -134,6 +143,7 @@ public class ClassifyAction {
             res.put("status",1);
             classify.setDeleteStatus(true);
             this.classifyService.update(classify);
+            logger.info("管理员:{}删除新闻栏目:{}成功",user.getId(),classify.getId());
         }else{
             res.put("status",2);
         }

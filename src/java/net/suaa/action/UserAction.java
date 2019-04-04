@@ -16,6 +16,8 @@ import net.suaa.utils.Md5Encrypt;
 import net.suaa.utils.ResponseUtils;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -37,6 +39,9 @@ import java.util.List;
 
 @Controller
 public class UserAction {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserAction.class);
+
 
     @Autowired
     private IUserService userService;
@@ -61,6 +66,7 @@ public class UserAction {
         session.removeAttribute("userName");
         session.removeAttribute("password");
         session.removeAttribute("error");
+        logger.info("到达登录页------>用户名:{}密码:{}错误信息:{}",session.getAttribute("userName"),session.getAttribute("password"),session.getAttribute("error"));
         return mv;
 
     }
@@ -73,7 +79,7 @@ public class UserAction {
             if(!CommUtil.null2String(userName).equals("") && !CommUtil.null2String(password).equals("")){
                 Map param = new HashMap();
                 param.put("userName",CommUtil.null2String(userName));
-                List<User> checkUsers = this.userService.query("select obj from User obj where obj.userName =:userName  and obj.deleteStatus =false",param,-1,-1);
+                List<User> checkUsers = this.userService.query("select obj from User obj where obj.userName ={}userName  and obj.deleteStatus =false",param,-1,-1);
                 if(checkUsers == null || checkUsers.size()==0){
                     User addUser = new User();
                     addUser.setUserName(CommUtil.null2String(userName));
@@ -93,6 +99,7 @@ public class UserAction {
         }else{
           ret = 2;
         }
+        logger.info("添加用户，状态:{}添加的用户名:{}",ret,userName);
         map.put("status",ret);
         returnView(response,map);
     }
@@ -117,6 +124,7 @@ public class UserAction {
                 Cookie wemall_user_session = new Cookie("school_user_session", users.get(0).getId().toString());
                 wemall_user_session.setDomain(CommUtil.generic_domain(request));
                 response.addCookie(wemall_user_session);
+                logger.info("用户{}登录成功",userName);
                 try {
                     response.sendRedirect("/index.htm");
                 }catch (Exception e){
@@ -126,6 +134,7 @@ public class UserAction {
             }else{
                 session.setAttribute("userName",userName);
                 session.setAttribute("error","账号或者密码有误！");
+                logger.info("用户{}登录失败,账号或者密码有误！",userName);
                 try {
                     response.sendRedirect("/login.htm");
                 }catch (IOException e){
@@ -133,6 +142,7 @@ public class UserAction {
                 }
             }
         }else {
+            logger.info("用户:{}登录失败，验证码有误，错误验证码:{}正确验证码:{}",userName,valida,verifyCode);
             session.setAttribute("userName",userName);
             session.setAttribute("password",password);
             session.setAttribute("error","验证码有误！");
@@ -171,6 +181,7 @@ public class UserAction {
         }else{
             res.put("status",3);//没有登录
         }
+        logger.info("添加用户:{}状态:{}",user_name,res.get("status"));
         returnView(response,res);
     }
 
@@ -185,6 +196,7 @@ public class UserAction {
             userService.update(deleteUser);
             res.put("status",1);
         }
+        logger.info("删除用户:{}",userId);
         returnView(response,res);
 
     }
@@ -201,7 +213,6 @@ public class UserAction {
         }
     }
 
-    @SecurityMapping(display = false, rsequence = 0, title = "卖家团购编辑", value = "/admin/getauthorization.htm*", rtype = "admin", rname = "admin", rcode = "admin", rgroup = "admin")
     @RequestMapping("/admin/getauthorization.htm")
     public void authorization(HttpServletResponse response,HttpServletRequest request,String user_id,String[] classifys){
         classifys = request.getParameterValues("classifys[]");
@@ -237,9 +248,16 @@ public class UserAction {
             res.put("obj",classifyNames);
             res.put("status",1);
         }
+        logger.info("给:{}用户授权:{}",user_id,classifys);
         returnView(response,res);
     }
 
+    /**
+     * 获取当前已授权的栏目
+     * @param response
+     * @param request
+     * @param user_id
+     */
     @RequestMapping("/admin/user_classify.htm")
     public void getUserClassIfy(HttpServletResponse response,HttpServletRequest request,String user_id){
         User currenrUser = SecurityUserHolder.getCurrentUser();
@@ -257,10 +275,36 @@ public class UserAction {
         }else{
             res.put("status",2);
         }
+        logger.info("获取当前:{}已授权的栏目",user_id);
         returnView(response,res);
     }
 
 
+    @RequestMapping("/admin/login_out.htm")
+    public void loginOut(HttpServletResponse response,HttpServletRequest request){
+        User user = SecurityUserHolder.getCurrentUser();
+        if(user != null){
+           Cookie[] cookies = request.getCookies();
+           for (int i = 0; i<cookies.length; i++){
+               logger.info(cookies[i].getName());
+               if(cookies[i].getName().equals("school_user_session")){
+                   Cookie cookie = cookies[i];
+                   cookie.setMaxAge(0);
+                   cookie.setValue(null);
+                   request.getSession().removeAttribute("user");
+                   response.addCookie(cookie);
+                   logger.info(":{}退出登录",user.getId());
+                   break;
+               }
+           }
+        }
+        try {
+            response.sendRedirect("/login.htm");
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+    }
 
 
 

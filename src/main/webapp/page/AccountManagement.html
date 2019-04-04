@@ -30,7 +30,7 @@
                         <li class="b60"><label>授权形式</label></li>
                     </ul>
                     <div class="list_b_c">
-                        <ul class="list_null">
+                        <ul class="list_null" th:if="${#lists.isEmpty(objs)}">
                             <li class="text_center">未添加管理员账户！</li>
                         </ul>
                         <input type="hidden" id="user_id_edit">

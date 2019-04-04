@@ -31,7 +31,7 @@
                         <input type="hidden" id="click_classify_serial">
                     </ul>
                     <div class="list_b_c">
-                        <ul class="list_null">
+                        <ul class="list_null"  th:if="${#lists.isEmpty(objs)}">
                             <li class="text_center">未添加栏目！</li>
                         </ul>
 

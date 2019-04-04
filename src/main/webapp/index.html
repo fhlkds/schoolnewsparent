@@ -21,11 +21,20 @@
     }else{
         $("iframe").attr("src",webPath+"/admin/newsManagement.htm");
     }
+   /* function login_out() {
+        $.ajax({
+            url:"/login_out.htm",
+            type:"post",
+            success:function (data) {
+                window.location.href = "";
+            }
+        });
+    }*/
 </script>
 <div class="header">
         <div class="header_in">
             <img src="images/tit.png">
-            <div class="quit text_center">安全退出</div>
+            <a href="/admin/login_out.htm"><div class="quit text_center">安全退出</div></a>
         </div>
 
     </div>
@@ -36,9 +45,9 @@
             <div class="user_location fl">当前： 首页-<span>账户管理</span>  </div>
         </div>
         <div class="nav_side text_center fl">
-            <div th:if="${user.userName} eq 'admin'" class="nav AccountManagement active">账户管理</div>
+            <div th:if="${user.userName} eq 'admin'" class="nav AccountManagement">账户管理</div>
             <div th:if="${user.userName} eq 'admin'" class="nav ColumnManagement">栏目管理</div>
-            <div class="nav NewsManagement">新闻管理</th:value></div>
+            <div class="nav NewsManagement active">新闻管理</th:value></div>
         </div>
 
 
